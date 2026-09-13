@@ -280,6 +280,9 @@ export interface Insight {
   subtitle: string;
   series: Category;
   teaser: string;
+  body: string;
+  sources: string;
+  readingTime: string;
   isFounding: boolean;
   reportSlug?: string;
 }
@@ -331,6 +334,11 @@ function parseInsights(): Insight[] {
           .replace(/\s*[”"]$/, "")
       : "";
 
+    const sources =
+      sourcesIdx >= 0
+        ? content.slice(sourcesIdx + sourcesHeading.length).trim()
+        : "";
+
     const category = (
       seriesRaw === "AI + HUMAN"
         ? "AI + Human"
@@ -345,6 +353,9 @@ function parseInsights(): Insight[] {
       subtitle,
       series: category,
       teaser,
+      body,
+      sources,
+      readingTime: readingTime(body, 250),
       isFounding: number in FOUNDING_REPORT_SLUGS,
       reportSlug: FOUNDING_REPORT_SLUGS[number],
     });
@@ -360,4 +371,8 @@ export function getAllInsights(): Insight[] {
 
 export function getInsightsBySeries(series: Category): Insight[] {
   return parseInsights().filter((i) => i.series === series);
+}
+
+export function getInsightBySlug(slug: string): Insight | undefined {
+  return parseInsights().find((i) => i.slug === slug);
 }

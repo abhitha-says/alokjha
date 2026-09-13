@@ -3,15 +3,28 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Newsletter from "@/components/Newsletter";
 import Reveal from "@/components/Reveal";
-import { CATEGORY_META, getAllInsights, type Category } from "@/lib/markdown-content";
+import {
+  CATEGORY_META,
+  CATEGORY_SLUGS,
+  getAllInsights,
+  type Category,
+} from "@/lib/markdown-content";
 
 export const metadata = {
   title: "Insights — Human Signals",
   description:
-    "Human Signals Insights: 55 short, evidence-led reads across Mind, Choice, Money, Business and AI + Human, each a standalone ₹499 product.",
+    "Human Signals Insights: 55 short, evidence-led reads across Mind, Choice, Money, Business and AI + Human — free to read while the collection launches.",
 };
 
 const SERIES_ORDER: Category[] = ["Mind", "Choice", "Money", "Business", "AI + Human"];
+
+function categoryFromParam(value?: string): Category | null {
+  if (!value) return null;
+  const match = SERIES_ORDER.find(
+    (c) => CATEGORY_SLUGS[c].toLowerCase() === value.toLowerCase()
+  );
+  return match ?? null;
+}
 
 const READER_STEPS = [
   {
@@ -45,15 +58,39 @@ const EDITORIAL_STANDARD = [
   "Clear source page and educational disclaimer",
 ] as const;
 
+const SERIES_USAGE_NOTES: Partial<Record<Category, { heading: string; body: string }[]>> = {
+  Money: [
+    {
+      heading: "For personal reflection",
+      body: "Use an Insight as a 20–30 minute reading and thinking exercise. The self-audit is intentionally non-diagnostic; it is there to help you notice patterns.",
+    },
+    {
+      heading: "For teams and workshops",
+      body: "Use one Insight as a pre-read and then discuss the conversation prompts. The Money Series is particularly useful for retirement, family, founder and financial-wellbeing discussions.",
+    },
+    {
+      heading: "For business application",
+      body: "The practical frameworks can be used to make money conversations more conscious — but they are not personalised investment advice or substitutes for a financial plan.",
+    },
+  ],
+};
+
 const PRICING = [
-  { product: "Any one Human Signals Insight", price: "₹499" },
-  { product: "Founding Five bundle (HSI 001–005)", price: "₹1,999" },
-  { product: "Any 3 Insights", price: "₹1,199" },
-  { product: "Any 5 Insights", price: "₹1,999" },
+  { product: "Any one Human Signals Insight", price: "Free for now" },
+  { product: "Founding Five bundle (HSI 001–005)", price: "Free for now" },
+  { product: "Any 3 Insights", price: "Free for now" },
+  { product: "Any 5 Insights", price: "Free for now" },
 ] as const;
 
-export default function InsightsPage() {
+export default async function InsightsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category } = await searchParams;
   const insights = getAllInsights();
+  const activeCategory = categoryFromParam(category);
+  const seriesToShow = activeCategory ? [activeCategory] : SERIES_ORDER;
 
   return (
     <>
@@ -68,13 +105,40 @@ export default function InsightsPage() {
           </h1>
           <p className="mt-4 max-w-[600px] text-[14.5px] leading-relaxed text-muted">
             Each Insight is a standalone, 15-page reader product built from research, real-life
-            examples, a practical framework, a self-audit and references — priced at ₹499. Five of
-            them, the Founding Five, are free to read in full as Human Signals Reports.
+            examples, a practical framework, a self-audit and references. Every Insight is free to
+            read in full for now, including the Founding Five, which also appear as Human Signals
+            Reports.
           </p>
           <p className="mt-4 max-w-[600px] text-[12.5px] leading-relaxed text-muted">
             Human Signals Insights are educational publications. They are not clinical, therapeutic,
             medical, legal or personalised financial advice.
           </p>
+
+          <div className="mt-8 flex flex-wrap gap-2">
+            <Link
+              href="/insights"
+              className={`rounded-full border px-4 py-2 text-[13px] font-medium transition-colors ${
+                !activeCategory
+                  ? "border-ink bg-ink text-paper"
+                  : "border-line text-ink/70 hover:border-ink/40"
+              }`}
+            >
+              All · {insights.length}
+            </Link>
+            {SERIES_ORDER.map((series) => (
+              <Link
+                key={series}
+                href={`/insights?category=${CATEGORY_SLUGS[series]}`}
+                className={`rounded-full border px-4 py-2 text-[13px] font-medium transition-colors ${
+                  activeCategory === series
+                    ? "border-ink bg-ink text-paper"
+                    : "border-line text-ink/70 hover:border-ink/40"
+                }`}
+              >
+                {series} · {insights.filter((i) => i.series === series).length}
+              </Link>
+            ))}
+          </div>
         </section>
 
         <section className="border-t border-line">
@@ -120,7 +184,8 @@ export default function InsightsPage() {
             <Reveal>
               <h2 className="font-serif text-[22px] font-semibold text-ink">Pricing at a glance</h2>
               <p className="mt-2 max-w-[520px] text-[13px] text-muted">
-                Bundle prices are suggested commercial placeholders and can be revised before launch.
+                Every Insight is free to read while the collection launches. Eventual pricing is
+                shown for reference and can be revised before launch.
               </p>
             </Reveal>
             <div className="mt-6 divide-y divide-line border-y border-line">
@@ -136,7 +201,7 @@ export default function InsightsPage() {
           </div>
         </section>
 
-        {SERIES_ORDER.map((series, seriesIndex) => {
+        {seriesToShow.map((series, seriesIndex) => {
           const seriesInsights = insights
             .filter((i) => i.series === series)
             .sort((a, b) => a.number.localeCompare(b.number));
@@ -151,6 +216,24 @@ export default function InsightsPage() {
                   </h2>
                   <p className="mt-2 max-w-[520px] text-[13px] text-muted">{meta.description}</p>
                 </Reveal>
+
+                {SERIES_USAGE_NOTES[series] && (
+                  <Reveal delay={0.05}>
+                    <h3 className="mt-8 font-serif text-[16px] font-semibold text-ink">
+                      How to use the {series} Series
+                    </h3>
+                    <div className="mt-4 grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-3">
+                      {SERIES_USAGE_NOTES[series]!.map((note) => (
+                        <div key={note.heading}>
+                          <p className="text-[13px] font-semibold text-ink">{note.heading}</p>
+                          <p className="mt-1.5 text-[13px] leading-relaxed text-muted">
+                            {note.body}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </Reveal>
+                )}
 
                 <div className="mt-8 divide-y divide-line border-t border-line">
                   {seriesInsights.map((insight) => (
@@ -196,12 +279,21 @@ export default function InsightsPage() {
                           </>
                         ) : (
                           <>
-                            <span className="font-serif text-[14px] font-semibold text-ink">
-                              ₹499
+                            <span className="rounded-full bg-cream px-2.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-ink/70">
+                              Free for now
                             </span>
-                            <span className="rounded-full bg-ink px-2.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-paper">
-                              Coming soon
-                            </span>
+                            <Link
+                              href={`/insights/${insight.slug}`}
+                              className="group inline-flex items-center gap-1 text-[13px] font-medium text-ink"
+                            >
+                              Read free
+                              <span
+                                className="transition-transform duration-300 group-hover:translate-x-1"
+                                aria-hidden
+                              >
+                                →
+                              </span>
+                            </Link>
                           </>
                         )}
                       </span>
@@ -216,15 +308,15 @@ export default function InsightsPage() {
         <section className="border-t border-line bg-cream/50">
           <div className="mx-auto max-w-content px-6 py-14 text-center sm:px-10 lg:px-14">
             <Reveal>
-              <span className="rounded-full bg-ink px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-paper">
-                Coming soon
+              <span className="rounded-full bg-cream px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-ink/70">
+                Free for now
               </span>
               <h2 className="mt-4 font-serif text-[20px] font-semibold text-ink">
-                Individual Insights are being designed for release
+                Every Insight is free to read while the collection launches
               </h2>
               <p className="mx-auto mt-2 max-w-[420px] text-[13.5px] leading-relaxed text-muted">
-                Subscribe to Human Signals and hear first when each Insight and its bundle pricing
-                goes live — free, like everything else here.
+                Subscribe to Human Signals and hear first if that changes, and when new Insights
+                and bundles are added.
               </p>
             </Reveal>
           </div>
