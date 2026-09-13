@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Search, Menu, X } from "lucide-react";
 import { nav } from "@/lib/content";
 import type { SearchResult } from "@/app/api/search/route";
 
 export default function Header() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -53,31 +55,37 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-line/70 bg-paper/95 backdrop-blur">
-      <div className="mx-auto flex max-w-content items-center justify-between px-6 py-5 sm:px-8 md:py-6 lg:px-14">
+      <div className="mx-auto flex max-w-content items-center justify-between px-[30px] py-[25px] sm:px-10 md:py-[30px] lg:px-10 xl:px-[70px]">
         <Link href="/" className="shrink-0">
-          <span className="block font-serif text-[22px] font-semibold leading-none tracking-tight text-ink sm:text-[26px]">
+          <span className="block font-serif text-[27.5px] font-semibold leading-none tracking-tight text-ink sm:text-[32.5px]">
             Human Signals
           </span>
-          <span className="mt-1 hidden text-[11px] leading-none text-muted md:block">
+          <span className="mt-1 hidden text-[13.75px] leading-none text-muted xl:block">
             Psychology, behaviour and the choices we make.
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-4 md:flex lg:gap-8">
-          {nav.map((item, i) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`relative text-[13.5px] font-medium text-ink/80 transition-colors hover:text-ink ${
-                i === 0 ? "text-ink after:absolute after:-bottom-[18px] after:left-0 after:h-[2px] after:w-full after:bg-ink" : ""
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+        <nav className="hidden items-center gap-3 md:flex lg:gap-5 xl:gap-8">
+          {nav.map((item) => {
+            const isActive =
+              item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative text-[14.5px] font-medium text-ink/80 transition-colors hover:text-ink lg:text-[15.5px] xl:text-[16.875px] ${
+                  isActive
+                    ? "text-ink after:absolute after:-bottom-[18px] after:left-0 after:h-[2px] after:w-full after:bg-ink"
+                    : ""
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="flex items-center gap-3 lg:gap-4">
+        <div className="flex items-center gap-2 lg:gap-3 xl:gap-4">
           <button
             aria-label={searchOpen ? "Close search" : "Search"}
             aria-expanded={searchOpen}
@@ -85,14 +93,14 @@ export default function Header() {
             className="hidden text-ink/80 transition-colors hover:text-ink sm:block"
           >
             {searchOpen ? (
-              <X size={18} strokeWidth={1.75} />
+              <X size={22} strokeWidth={1.75} />
             ) : (
-              <Search size={18} strokeWidth={1.75} />
+              <Search size={22} strokeWidth={1.75} />
             )}
           </button>
           <Link
             href="/subscribe"
-            className="hidden rounded-full bg-ink px-4 py-2 text-[13px] font-medium text-paper transition-transform hover:scale-[1.03] active:scale-[0.98] sm:inline-block lg:px-5"
+            className="hidden rounded-full bg-ink px-4 py-2 text-[14px] font-medium text-paper transition-transform hover:scale-[1.03] active:scale-[0.98] sm:inline-block lg:px-5 lg:py-2.5 lg:text-[16.25px] xl:px-[25px]"
           >
             Subscribe
           </Link>
@@ -101,7 +109,7 @@ export default function Header() {
             className="text-ink md:hidden"
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <X size={22} /> : <Menu size={22} />}
+            {open ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
       </div>

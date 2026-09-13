@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllEssays, getAllReports } from "@/lib/markdown-content";
+import { getAllEssays, getAllInsights, getAllReports } from "@/lib/markdown-content";
 
 export interface SearchResult {
-  type: "essay" | "report";
+  type: "essay" | "report" | "insight";
   title: string;
   description: string;
   category: string;
@@ -47,7 +47,24 @@ export async function GET(request: NextRequest) {
       href: `/reports/${report.slug}`,
     }));
 
-  const results = [...essayResults, ...reportResults].slice(0, 8);
+  const insightResults: SearchResult[] = getAllInsights()
+    .filter(
+      (insight) =>
+        insight.title.toLowerCase().includes(query) ||
+        insight.subtitle.toLowerCase().includes(query) ||
+        insight.series.toLowerCase().includes(query)
+    )
+    .map((insight) => ({
+      type: "insight",
+      title: insight.title,
+      description: insight.subtitle,
+      category: insight.series,
+      href: insight.isFounding
+        ? `/reports/${insight.reportSlug}`
+        : `/insights#hsi-${insight.number}`,
+    }));
+
+  const results = [...essayResults, ...reportResults, ...insightResults].slice(0, 8);
 
   return NextResponse.json({ results });
 }

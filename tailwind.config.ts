@@ -25,9 +25,14 @@ const config: Config = {
           "0%": { transform: "translateY(16px)" },
           "100%": { transform: "translateY(0)" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         fadeUp: "fadeUp 0.7s ease forwards",
+        marquee: "marquee 32s linear infinite",
       },
     },
   },

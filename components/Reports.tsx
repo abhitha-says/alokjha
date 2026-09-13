@@ -24,30 +24,39 @@ export default function Reports() {
         </Reveal>
       </div>
 
-      <div className="mt-7 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-5">
-        {reports.map((report, i) => (
-          <Reveal key={report.number} delay={i * 0.07}>
-            <div className="border-t border-line pt-4">
-              <p className="text-[12px] font-semibold text-muted">{report.number}</p>
-              <h3 className="mt-2 font-serif text-[17px] font-semibold leading-snug text-ink">
-                {report.title}
-              </h3>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-muted">
-                {report.description}
-              </p>
-              <Link
-                href={report.href}
-                className="group mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-ink"
+      <Reveal delay={0.1} className="mt-7">
+        <div
+          className="group/marquee overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]"
+        >
+          <div className="flex w-max animate-marquee gap-6 group-hover/marquee:[animation-play-state:paused]">
+            {[...reports, ...reports].map((report, i) => (
+              <div
+                key={`${report.number}-${i}`}
+                aria-hidden={i >= reports.length}
+                className="w-[260px] shrink-0 border-t border-line pt-4"
               >
-                Download Free
-                <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden>
-                  →
-                </span>
-              </Link>
-            </div>
-          </Reveal>
-        ))}
-      </div>
+                <p className="text-[12px] font-semibold text-muted">{report.number}</p>
+                <h3 className="mt-2 font-serif text-[17px] font-semibold leading-snug text-ink">
+                  {report.title}
+                </h3>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-muted">
+                  {report.description}
+                </p>
+                <Link
+                  href={report.href}
+                  tabIndex={i >= reports.length ? -1 : 0}
+                  className="group mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-ink"
+                >
+                  Download Free
+                  <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden>
+                    →
+                  </span>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Reveal>
     </section>
   );
 }

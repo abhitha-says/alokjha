@@ -93,6 +93,10 @@ const REPORTS_FILE = path.join(
   process.cwd(),
   "Human_Signals_Reports_Volume_1.md"
 );
+const INSIGHTS_FILE = path.join(
+  process.cwd(),
+  "Human_Signals_Insights_Library.md"
+);
 
 let essaysCache: Essay[] | null = null;
 let sourcesCache: Record<Category, string> | null = null;
@@ -266,4 +270,94 @@ export function getAllReports(): Report[] {
 
 export function getReportBySlug(slug: string): Report | undefined {
   return parseReports().find((r) => r.slug === slug);
+}
+
+export interface Insight {
+  number: string;
+  code: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  series: Category;
+  teaser: string;
+  isFounding: boolean;
+  reportSlug?: string;
+}
+
+const FOUNDING_REPORT_SLUGS: Record<string, string> = {
+  "001": "the-choice-trap",
+  "002": "the-indian-buyer",
+  "003": "when-humans-trust-machines",
+  "004": "after-the-role-changes",
+  "005": "the-founder-mind-under-pressure",
+};
+
+let insightsCache: Insight[] | null = null;
+
+function parseInsights(): Insight[] {
+  if (insightsCache) return insightsCache;
+
+  const raw = fs.readFileSync(INSIGHTS_FILE, "utf-8");
+  const [, ...chunks] = raw.split(
+    /\*\*HUMAN SIGNALS INSIGHT \| ([A-Z][A-Z + ]*) \| HSI (\d{3})\*\*/
+  );
+
+  const insights: Insight[] = [];
+  for (let i = 0; i < chunks.length; i += 3) {
+    const seriesRaw = chunks[i].trim();
+    const number = chunks[i + 1].trim();
+    const content = chunks[i + 2];
+
+    const titleMatch = content.match(/^\s*#\s+(.+?)\s*$/m);
+    const subtitleMatch = content.match(/^_(.+?)_\s*$/m);
+    if (!titleMatch || !subtitleMatch) continue;
+
+    const title = titleMatch[1].trim();
+    const subtitle = subtitleMatch[1].trim();
+
+    const bodyStart = content.indexOf(subtitleMatch[0]) + subtitleMatch[0].length;
+    const sourcesHeading = "## Selected evidence and further reading";
+    const sourcesIdx = content.indexOf(sourcesHeading);
+    const body = (
+      sourcesIdx >= 0 ? content.slice(bodyStart, sourcesIdx) : content.slice(bodyStart)
+    ).trim();
+
+    const teaserMatch = body.match(/^(.+?)(?:\n\n|$)/s);
+    const teaser = teaserMatch
+      ? teaserMatch[1]
+          .replace(/\s+/g, " ")
+          .trim()
+          .replace(/^[“"]\s*/, "")
+          .replace(/\s*[”"]$/, "")
+      : "";
+
+    const category = (
+      seriesRaw === "AI + HUMAN"
+        ? "AI + Human"
+        : seriesRaw.charAt(0) + seriesRaw.slice(1).toLowerCase()
+    ) as Category;
+
+    insights.push({
+      number,
+      code: `HSI ${number}`,
+      slug: slugify(title),
+      title,
+      subtitle,
+      series: category,
+      teaser,
+      isFounding: number in FOUNDING_REPORT_SLUGS,
+      reportSlug: FOUNDING_REPORT_SLUGS[number],
+    });
+  }
+
+  insightsCache = insights;
+  return insights;
+}
+
+export function getAllInsights(): Insight[] {
+  return parseInsights();
+}
+
+export function getInsightsBySeries(series: Category): Insight[] {
+  return parseInsights().filter((i) => i.series === series);
 }
