@@ -18,6 +18,19 @@ html[data-scroll-behavior="smooth"] {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* The blanket rule above would collapse the marquee to its end frame
+     (translateX(-50%)), leaving only the aria-hidden duplicate set visible.
+     Cancel the animation instead and let the strip be scrolled by hand. */
+  .marquee-track {
+    animation: none !important;
+    transform: none !important;
+  }
+  .marquee-viewport {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
 }
 
 .reveal {

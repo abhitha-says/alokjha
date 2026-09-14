@@ -55,10 +55,10 @@ export default async function EssayPage({
           >
             {essay.category}
           </Link>
-          <h1 className="mt-3 font-serif text-[30px] font-semibold leading-[1.15] text-ink sm:text-[38px]">
+          <h1 className="mt-3 break-words font-serif text-[30px] font-semibold leading-[1.15] text-ink sm:text-[38px]">
             {essay.title}
           </h1>
-          <p className="mt-4 text-[16px] leading-relaxed text-ink/70 sm:text-[18px]">
+          <p className="mt-4 break-words text-[16px] leading-relaxed text-ink/70 sm:text-[18px]">
             {essay.deck}
           </p>
 

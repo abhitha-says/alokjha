@@ -66,7 +66,7 @@ const SERIES_USAGE_NOTES: Partial<Record<Category, { heading: string; body: stri
     },
     {
       heading: "For teams and workshops",
-      body: "Use one Insight as a pre-read and then discuss the conversation prompts. The Money Series is particularly useful for retirement, family, founder and financial-wellbeing discussions.",
+      body: "Use one Insight as a pre-read and then discuss the conversation prompts. The Money Signals are particularly useful for retirement, family, founder and financial-wellbeing discussions.",
     },
     {
       heading: "For business application",
@@ -123,7 +123,7 @@ export default async function InsightsPage({
                   : "border-line text-ink/70 hover:border-ink/40"
               }`}
             >
-              All · {insights.length}
+              All Signals
             </Link>
             {SERIES_ORDER.map((series) => (
               <Link
@@ -135,7 +135,7 @@ export default async function InsightsPage({
                     : "border-line text-ink/70 hover:border-ink/40"
                 }`}
               >
-                {series} · {insights.filter((i) => i.series === series).length}
+                {series} Signals
               </Link>
             ))}
           </div>
@@ -190,8 +190,11 @@ export default async function InsightsPage({
             </Reveal>
             <div className="mt-6 divide-y divide-line border-y border-line">
               {PRICING.map((row) => (
-                <div key={row.product} className="flex items-center justify-between gap-4 py-3.5">
-                  <span className="text-[14px] text-ink">{row.product}</span>
+                <div
+                  key={row.product}
+                  className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3.5"
+                >
+                  <span className="min-w-0 break-words text-[14px] text-ink">{row.product}</span>
                   <span className="shrink-0 font-serif text-[15px] font-semibold text-ink">
                     {row.price}
                   </span>
@@ -212,7 +215,7 @@ export default async function InsightsPage({
               <div className="mx-auto max-w-content px-6 py-14 sm:px-10 md:py-16 lg:px-14">
                 <Reveal>
                   <h2 className="font-serif text-[24px] font-semibold text-ink">
-                    {series} Series
+                    {series} Signals
                   </h2>
                   <p className="mt-2 max-w-[520px] text-[13px] text-muted">{meta.description}</p>
                 </Reveal>
@@ -220,7 +223,7 @@ export default async function InsightsPage({
                 {SERIES_USAGE_NOTES[series] && (
                   <Reveal delay={0.05}>
                     <h3 className="mt-8 font-serif text-[16px] font-semibold text-ink">
-                      How to use the {series} Series
+                      How to use the {series} Signals
                     </h3>
                     <div className="mt-4 grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-3">
                       {SERIES_USAGE_NOTES[series]!.map((note) => (
@@ -245,15 +248,18 @@ export default async function InsightsPage({
                       <span className="shrink-0 font-serif text-[13px] text-muted">
                         {insight.code}
                       </span>
-                      <span className="flex-1">
-                        <span className="block font-serif text-[18px] font-semibold leading-snug text-ink">
+                      <span className="min-w-0 flex-1">
+                        <span className="block break-words font-serif text-[18px] font-semibold leading-snug text-ink">
                           {insight.title}
                         </span>
-                        <span className="mt-1.5 block max-w-[540px] text-[13.5px] leading-relaxed text-muted">
+                        <span className="mt-1.5 block max-w-[540px] break-words text-[13.5px] leading-relaxed text-muted">
                           {insight.subtitle}
                         </span>
                         {!insight.isFounding && (
-                          <span className="mt-2 block max-w-[540px] text-[12.5px] italic leading-relaxed text-muted/80">
+                          // `anywhere`: teasers carry bare research URLs, and a
+                          // URL's min-content width was expanding the mobile
+                          // layout viewport to 551px across this whole page.
+                          <span className="mt-2 block max-w-[540px] text-[12.5px] italic leading-relaxed text-muted/80 [overflow-wrap:anywhere]">
                             &ldquo;{insight.teaser}&rdquo;
                           </span>
                         )}

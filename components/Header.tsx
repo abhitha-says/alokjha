@@ -89,8 +89,13 @@ export default function Header() {
           <button
             aria-label={searchOpen ? "Close search" : "Search"}
             aria-expanded={searchOpen}
-            onClick={() => setSearchOpen((v) => !v)}
-            className="hidden text-ink/80 transition-colors hover:text-ink sm:block"
+            onClick={() => {
+              setSearchOpen((v) => !v);
+              setOpen(false);
+            }}
+            // -m-2 p-2 grows the tap area without growing the layout box, so the
+            // 320px header still fits logo + search + menu.
+            className="-m-2 block p-2 text-ink/80 transition-colors hover:text-ink"
           >
             {searchOpen ? (
               <X size={22} strokeWidth={1.75} />
@@ -106,8 +111,12 @@ export default function Header() {
           </Link>
           <button
             aria-label="Menu"
-            className="text-ink md:hidden"
-            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            className="-m-2 p-2 text-ink md:hidden"
+            onClick={() => {
+              setOpen((v) => !v);
+              setSearchOpen(false);
+            }}
           >
             {open ? <X size={28} /> : <Menu size={28} />}
           </button>
@@ -164,17 +173,17 @@ export default function Header() {
                         <Link
                           href={result.href}
                           onClick={() => setSearchOpen(false)}
-                          className="group flex items-start justify-between gap-4 py-3"
+                          className="group flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
                         >
-                          <span>
-                            <span className="block text-[14.5px] font-medium text-ink group-hover:text-accent">
+                          <span className="min-w-0">
+                            <span className="block break-words text-[14.5px] font-medium text-ink group-hover:text-accent">
                               {result.title}
                             </span>
-                            <span className="mt-0.5 block text-[12.5px] leading-relaxed text-muted">
+                            <span className="mt-0.5 block break-words text-[12.5px] leading-relaxed text-muted">
                               {result.description}
                             </span>
                           </span>
-                          <span className="shrink-0 whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.05em] text-muted">
+                          <span className="shrink-0 text-[11px] font-medium uppercase tracking-[0.05em] text-muted sm:whitespace-nowrap">
                             {result.category}
                           </span>
                         </Link>

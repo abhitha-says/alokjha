@@ -26,14 +26,14 @@ export default function Reports() {
 
       <Reveal delay={0.1} className="mt-7">
         <div
-          className="group/marquee overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]"
+          className="marquee-viewport group/marquee overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]"
         >
-          <div className="flex w-max animate-marquee gap-6 group-hover/marquee:[animation-play-state:paused]">
+          <div className="marquee-track flex w-max animate-marquee gap-6 group-hover/marquee:[animation-play-state:paused]">
             {[...reports, ...reports].map((report, i) => (
               <div
                 key={`${report.number}-${i}`}
                 aria-hidden={i >= reports.length}
-                className="w-[260px] shrink-0 border-t border-line pt-4"
+                className="w-[240px] shrink-0 border-t border-line pt-4 sm:w-[260px]"
               >
                 <p className="text-[12px] font-semibold text-muted">{report.number}</p>
                 <h3 className="mt-2 font-serif text-[17px] font-semibold leading-snug text-ink">

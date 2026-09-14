@@ -61,7 +61,7 @@ export default async function ArticlesPage({
                   : "border-line text-ink/70 hover:border-ink/40"
               }`}
             >
-              All · {essays.length}
+              All Signals
             </Link>
             {CATEGORIES.map((cat) => (
               <Link
@@ -73,7 +73,7 @@ export default async function ArticlesPage({
                     : "border-line text-ink/70 hover:border-ink/40"
                 }`}
               >
-                {cat} · 10
+                {cat} Signals
               </Link>
             ))}
           </div>
@@ -103,11 +103,11 @@ export default async function ArticlesPage({
                         <span className="w-7 shrink-0 font-serif text-[13px] text-muted">
                           {String(essay.number).padStart(2, "0")}
                         </span>
-                        <span className="flex-1">
-                          <span className="block font-serif text-[16.5px] font-semibold leading-snug text-ink group-hover:text-accent sm:text-[17.5px]">
+                        <span className="min-w-0 flex-1">
+                          <span className="block break-words font-serif text-[16.5px] font-semibold leading-snug text-ink group-hover:text-accent sm:text-[17.5px]">
                             {essay.title}
                           </span>
-                          <span className="mt-1 block text-[13px] leading-relaxed text-muted">
+                          <span className="mt-1 block break-words text-[13px] leading-relaxed text-muted">
                             {essay.deck}
                           </span>
                         </span>

@@ -42,11 +42,11 @@ export default function ReportsPage() {
                 <span className="shrink-0 font-serif text-[15px] text-muted">
                   {report.number}
                 </span>
-                <span className="flex-1">
-                  <span className="block font-serif text-[22px] font-semibold leading-snug text-ink group-hover:text-accent sm:text-[24px]">
+                <span className="min-w-0 flex-1">
+                  <span className="block break-words font-serif text-[22px] font-semibold leading-snug text-ink group-hover:text-accent sm:text-[24px]">
                     {report.title}
                   </span>
-                  <span className="mt-2 block max-w-[560px] text-[14.5px] leading-relaxed text-muted">
+                  <span className="mt-2 block max-w-[560px] break-words text-[14.5px] leading-relaxed text-muted">
                     {report.subtitle}
                   </span>
                   <span className="mt-4 inline-flex items-center gap-2 text-[13px] font-medium text-ink">

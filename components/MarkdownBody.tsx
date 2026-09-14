@@ -1,4 +1,5 @@
 import Markdown from "markdown-to-jsx";
+import type { ReactNode } from "react";
 
 export default function MarkdownBody({ children }: { children: string }) {
   return (
@@ -8,12 +9,12 @@ export default function MarkdownBody({ children }: { children: string }) {
           h2: {
             props: {
               className:
-                "mt-10 font-serif text-[20px] font-semibold leading-snug text-ink sm:text-[22px]",
+                "mt-10 break-words font-serif text-[20px] font-semibold leading-snug text-ink sm:text-[22px]",
             },
           },
           p: {
             props: {
-              className: "mt-4 text-[15.5px] leading-[1.8] text-ink/85",
+              className: "mt-4 break-words text-[15.5px] leading-[1.8] text-ink/85",
             },
           },
           strong: {
@@ -24,15 +25,26 @@ export default function MarkdownBody({ children }: { children: string }) {
           },
           a: {
             props: {
-              className: "text-accent underline underline-offset-2 hover:text-ink",
+              // `anywhere` rather than `break-word` so a bare research URL also
+              // stops contributing its full length to min-content sizing — that
+              // is what otherwise widens the whole document on a phone.
+              className:
+                "text-accent underline underline-offset-2 [overflow-wrap:anywhere] hover:text-ink",
               target: "_blank",
               rel: "noopener noreferrer",
             },
           },
           table: {
-            props: {
-              className: "mt-6 w-full border-collapse overflow-hidden rounded-md border border-line",
-            },
+            component: ({ children, ...props }: { children?: ReactNode }) => (
+              <div className="mt-6 overflow-x-auto">
+                <table
+                  {...props}
+                  className="w-full border-collapse overflow-hidden rounded-md border border-line"
+                >
+                  {children}
+                </table>
+              </div>
+            ),
           },
           thead: { props: { className: "hidden" } },
           tr: {
@@ -43,16 +55,16 @@ export default function MarkdownBody({ children }: { children: string }) {
           td: {
             props: {
               className:
-                "px-4 py-3 align-top text-[14.5px] leading-relaxed text-ink/85 first:w-10 first:font-serif first:text-[15px] first:font-semibold first:text-ink",
+                "break-words px-3 py-3 align-top text-[14.5px] leading-relaxed text-ink/85 first:w-10 first:font-serif first:text-[15px] first:font-semibold first:text-ink sm:px-4",
             },
           },
           ul: {
-            props: { className: "mt-4 list-disc space-y-2 pl-5 text-[15.5px] leading-relaxed text-ink/85" },
+            props: { className: "mt-4 list-disc space-y-2 break-words pl-5 text-[15.5px] leading-relaxed text-ink/85" },
           },
           blockquote: {
             props: {
               className:
-                "mt-6 border-l-2 border-ink/20 pl-5 text-[16px] italic leading-relaxed text-ink/75",
+                "mt-6 break-words border-l-2 border-ink/20 pl-5 text-[16px] italic leading-relaxed text-ink/75",
             },
           },
         },

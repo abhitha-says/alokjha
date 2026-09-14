@@ -30,7 +30,7 @@ export default function AboutPage() {
 
           <div className="mt-6 grid grid-cols-1 gap-10 md:mt-8 md:grid-cols-[280px_1fr] md:gap-14 lg:gap-16">
             <Reveal>
-              <div className="relative aspect-square w-[180px] overflow-hidden rounded-lg sm:w-[220px] md:w-full">
+              <div className="relative aspect-square w-full max-w-[180px] overflow-hidden rounded-lg sm:max-w-[220px] md:max-w-none">
                 <Image
                   src="/images/alok-jha-portrait.jpg"
                   alt="Portrait of Alok Jha"

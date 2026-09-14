@@ -42,18 +42,18 @@ export default async function InsightPage({
       <Header />
       <main>
         <article className="mx-auto max-w-[720px] px-6 py-14 sm:px-8 md:py-20">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-              {insight.code} · {insight.series} Series
+              {insight.code} · {insight.series} Signals
             </span>
-            <span className="rounded-full bg-cream px-2.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-ink/70">
+            <span className="shrink-0 rounded-full bg-cream px-2.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-ink/70">
               Free to read
             </span>
           </div>
-          <h1 className="mt-3 font-serif text-[30px] font-semibold leading-[1.15] text-ink sm:text-[38px]">
+          <h1 className="mt-3 break-words font-serif text-[30px] font-semibold leading-[1.15] text-ink sm:text-[38px]">
             {insight.title}
           </h1>
-          <p className="mt-3 text-[16px] leading-relaxed text-ink/80 sm:text-[18px]">
+          <p className="mt-3 break-words text-[16px] leading-relaxed text-ink/80 sm:text-[18px]">
             {insight.subtitle}
           </p>
 
@@ -72,7 +72,7 @@ export default async function InsightPage({
             </div>
             <div>
               <p className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-muted">
-                Series
+                Signals
               </p>
               <p className="mt-1 text-[13.5px] text-ink">{insight.series}</p>
             </div>

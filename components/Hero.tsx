@@ -5,22 +5,47 @@ export default function Hero() {
   return (
     <section className="relative overflow-hidden">
       <div className="relative h-[560px] w-full md:h-auto md:min-h-[400px] md:aspect-[2159/728]">
+        {/* Art-directed hero: a portrait crop below md, the wide original from md
+            up. Only one is in the DOM's a11y tree at a time (the other is
+            display:none), so each keeps its own alt. The `1px` branch in each
+            `sizes` makes the browser pick the smallest srcset candidate for the
+            viewport where that image is hidden, so `priority` preloads only the
+            one actually on screen instead of both heroes. */}
+        <Image
+          src="/images/hero-overlook-mobile.jpg"
+          alt="Alok Jha sits on a rock at sunset, looking out over misty hills and a distant lake."
+          fill
+          priority
+          sizes="(min-width: 768px) 1px, 100vw"
+          className="object-cover object-center md:hidden"
+        />
         <Image
           src="/images/hero-overlook.jpg"
           alt="Alok Jha sits on a rock overlooking misty mountains at sunset, with the quote: Better decisions create a kinder, more fulfilling world."
           fill
           priority
-          sizes="100vw"
-          className="object-cover object-[62%_center] md:object-[90%_center]"
+          sizes="(max-width: 767px) 1px, 100vw"
+          className="hidden object-cover object-[90%_center] md:block"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#f4ede2] via-[#f4ede2]/65 to-transparent md:from-[#f4ede2]/90 md:via-[#f0e8db]/25 md:to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent md:hidden" />
+        {/* The old landscape shot had empty sky on the left, so a near-opaque
+            cream wash cost nothing. This portrait frames the sun centre-right,
+            so the mobile wash is lighter and the bottom scrim is cream rather
+            than black — the handwritten quote sits over dark rock and needs the
+            ground lightened, not darkened. md+ values are unchanged. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#f4ede2]/92 via-[#f4ede2]/45 to-transparent md:from-[#f4ede2]/90 md:via-[#f0e8db]/25 md:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#f4ede2]/55 via-transparent to-transparent md:hidden" />
 
-        <div className="relative mx-auto flex h-full max-w-content flex-col justify-center px-6 sm:px-10 lg:px-14">
+        {/* Top-aligned below md so the copy sits over open sky rather than the
+            silhouette's head, which measured 1.5:1 behind the deck. Centred
+            again from md up, where the wide crop puts the subject far right. */}
+        <div className="relative mx-auto flex h-full max-w-content flex-col justify-start px-6 pt-11 sm:px-10 md:justify-center md:pt-0 lg:px-14">
           <p className="reveal text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/70 [animation-delay:0ms]">
             Ideas for a more human tomorrow
           </p>
-          <h1 className="reveal mt-3 max-w-[520px] font-serif text-[34px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-[42px] md:text-[46px] [animation-delay:100ms]">
+          {/* Fluid only below sm: at 34px "Because people are" needs 307px but a
+              320px phone leaves 272px, which orphaned "are" onto its own line.
+              Caps at the approved 34px from ~378px up, so sm/md are untouched. */}
+          <h1 className="reveal mt-3 max-w-[520px] font-serif text-[clamp(28px,9vw,34px)] font-semibold leading-[1.12] tracking-tight text-ink sm:text-[42px] md:text-[46px] [animation-delay:100ms]">
             Because people are
             <br />
             more than data.
@@ -44,13 +69,18 @@ export default function Hero() {
             </Link>
           </div>
 
-          <div className="reveal mt-8 max-w-[240px] text-left md:hidden [animation-delay:400ms]">
-            <p className="font-hand text-[20px] italic leading-[1.25] text-ink/70">
-              &ldquo;Better decisions create a kinder, more fulfilling world.&rdquo;
-            </p>
-            <p className="mt-1.5 font-hand text-[16px] text-ink/55">— Alok Jha</p>
-          </div>
         </div>
+      </div>
+
+      {/* On desktop this quote is part of the wide photo itself. The portrait
+          crop has no clear space for it — it landed on the silhouette's torso,
+          where measured contrast was ~1.9 against a 4.5 floor — so on mobile it
+          runs under the photo as a caption instead of fighting it. */}
+      <div className="mx-auto max-w-content px-6 pb-2 pt-7 sm:px-10 md:hidden">
+        <p className="font-hand text-[21px] italic leading-[1.3] text-ink/75">
+          &ldquo;Better decisions create a kinder, more fulfilling world.&rdquo;
+        </p>
+        <p className="mt-1 font-hand text-[16px] text-ink/55">— Alok Jha</p>
       </div>
     </section>
   );
