@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse, after } from "next/server";
-import { getAllEssays, getAllDeepDives } from "@/lib/markdown-content";
+import { getAllEssays, getAllDeepDives } from "@/lib/source";
 import { isFreeDeepDive, PRICING } from "@/lib/access";
 import {
   captureServerEvent,
@@ -39,7 +39,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ results: [] });
   }
 
-  const signalResults: SearchResult[] = getAllEssays()
+  const [essays, deepDives] = await Promise.all([
+    getAllEssays(),
+    getAllDeepDives(),
+  ]);
+
+  const signalResults: SearchResult[] = essays
     .filter(
       (signal) =>
         signal.title.toLowerCase().includes(query) ||
@@ -55,7 +60,7 @@ export async function GET(request: NextRequest) {
       href: `/signals/${signal.slug}`,
     }));
 
-  const deepDiveResults: SearchResult[] = getAllDeepDives()
+  const deepDiveResults: SearchResult[] = deepDives
     .filter(
       (dive) =>
         dive.title.toLowerCase().includes(query) ||

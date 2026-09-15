@@ -156,15 +156,26 @@ export async function auditLog(
     null;
   const userAgent = headersList.get("user-agent") ?? null;
 
-  await db.insert(adminAuditLog).values({
-    actorId: actor.userId,
-    action,
-    targetType: opts?.targetType ?? null,
-    targetId: opts?.targetId ?? null,
-    before: (opts?.before ?? null) as Record<string, unknown> | null,
-    after: (opts?.after ?? null) as Record<string, unknown> | null,
-    reason: opts?.reason ?? null,
-    ip,
-    userAgent,
-  });
+  // Best-effort. This is a secondary logging concern riding along on a
+  // primary mutation (content save, publish, refund, etc.) that has already
+  // taken effect by the time we get here. A logging failure — e.g. the dev
+  // bypass's non-UUID "dev" actor failing the actor_id FK — must never
+  // surface as a failure of the action itself, and must never abort work
+  // (like the content_revisions insert in saveContentAction) that runs
+  // after this call.
+  try {
+    await db.insert(adminAuditLog).values({
+      actorId: actor.userId,
+      action,
+      targetType: opts?.targetType ?? null,
+      targetId: opts?.targetId ?? null,
+      before: (opts?.before ?? null) as Record<string, unknown> | null,
+      after: (opts?.after ?? null) as Record<string, unknown> | null,
+      reason: opts?.reason ?? null,
+      ip,
+      userAgent,
+    });
+  } catch (err) {
+    console.error("auditLog: failed to write admin_audit_log entry", err);
+  }
 }

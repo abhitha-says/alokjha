@@ -1,5 +1,8 @@
-// Dynamic: reads params at request time.
+// Render on demand — the DB-backed 'use cache' in lib/db-content.ts serves
+// subsequent hits from cache, so cold latency is only paid once.
+// (No generateStaticParams: route is dynamic by default.)
 export const instant = false;
+
 
 import Link from "next/link";
 import Image from "next/image";
@@ -10,11 +13,6 @@ import MarkdownBody from "@/components/MarkdownBody";
 import TrackEvent from "@/components/analytics/TrackEvent";
 import TrackReadCompletion from "@/components/analytics/TrackReadCompletion";
 import {
-  // generateStaticParams reads markdown synchronously — slugs must be known at
-  // build time without a DB connection being available.
-  getAllEssays as getAllEssaysMd,
-} from "@/lib/markdown-content";
-import {
   getEssayBySlug,
   getRelatedEssays,
   getSourcesForCategory,
@@ -23,10 +21,6 @@ import {
 } from "@/lib/source";
 import { featuredSignalSlugs } from "@/lib/content";
 import { isFreeDeepDive, PRICING } from "@/lib/access";
-
-export function generateStaticParams() {
-  return getAllEssaysMd().map((essay) => ({ slug: essay.slug }));
-}
 
 export async function generateMetadata({
   params,

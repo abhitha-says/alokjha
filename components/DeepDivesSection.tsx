@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { getAllDeepDives } from "@/lib/markdown-content";
+import { getAllDeepDives } from "@/lib/source";
 import { isFreeDeepDive, PRICING } from "@/lib/access";
 import Reveal from "./Reveal";
 
-export default function DeepDivesSection() {
-  const all = getAllDeepDives();
+export default async function DeepDivesSection() {
+  const all = await getAllDeepDives();
   const free = all.filter((d) => isFreeDeepDive(d.slug));
   const paid = all.filter((d) => !isFreeDeepDive(d.slug)).slice(0, 4);
   const shown = [...free, ...paid];

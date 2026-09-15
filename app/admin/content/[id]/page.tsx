@@ -25,19 +25,21 @@ export default async function AdminContentEditPage({
     );
   }
 
-  const [row] = await db
-    .select()
-    .from(contentTable)
-    .where(eq(contentTable.id, id))
-    .limit(1);
+  // Independent of each other — run together instead of round-tripping twice.
+  const [rowResult, count] = await Promise.all([
+    db.select().from(contentTable).where(eq(contentTable.id, id)).limit(1),
+    // db.$count() as a standalone call (see app/api/checkout/route.ts) always
+    // resolves to a number, including 0. Wrapping it in an outer
+    // .from(contentRevisions).where(...) — as this used to — filters the outer
+    // query by the same predicate, so a piece with zero revisions (e.g. one
+    // whose first save never got as far as inserting a revision row) returned
+    // an empty result set instead of a zero, and the `[{ count }]` destructure
+    // threw on undefined.
+    db.$count(contentRevisions, eq(contentRevisions.contentId, id)),
+  ]);
+  const [row] = rowResult;
 
   if (!row || row.deletedAt) notFound();
-
-  const [{ count }] = await db
-    .select({ count: db.$count(contentRevisions, eq(contentRevisions.contentId, id)) })
-    .from(contentRevisions)
-    .where(eq(contentRevisions.contentId, id))
-    .limit(1);
 
   return (
     <ContentEditor

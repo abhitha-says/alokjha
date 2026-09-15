@@ -23,23 +23,39 @@ export default async function CurationPage() {
     );
   }
 
-  // Load all existing placements joined to content titles.
-  const placementRows = await db
-    .select({
-      id: featuredPlacements.id,
-      contentId: featuredPlacements.contentId,
-      surface: featuredPlacements.surface,
-      position: featuredPlacements.position,
-      startsAt: featuredPlacements.startsAt,
-      endsAt: featuredPlacements.endsAt,
-      title: contentTable.title,
-      kind: contentTable.kind,
-      slug: contentTable.slug,
-    })
-    .from(featuredPlacements)
-    .innerJoin(contentTable, eq(featuredPlacements.contentId, contentTable.id))
-    .where(isNull(contentTable.deletedAt))
-    .orderBy(featuredPlacements.position);
+  // Placements and the available-content list are independent — fetch together.
+  const [placementRows, publishedContent] = await Promise.all([
+    db
+      .select({
+        id: featuredPlacements.id,
+        contentId: featuredPlacements.contentId,
+        surface: featuredPlacements.surface,
+        position: featuredPlacements.position,
+        startsAt: featuredPlacements.startsAt,
+        endsAt: featuredPlacements.endsAt,
+        title: contentTable.title,
+        kind: contentTable.kind,
+        slug: contentTable.slug,
+      })
+      .from(featuredPlacements)
+      .innerJoin(contentTable, eq(featuredPlacements.contentId, contentTable.id))
+      .where(isNull(contentTable.deletedAt))
+      .orderBy(featuredPlacements.position),
+
+    // Published content available to add to surfaces.
+    db
+      .select({
+        id: contentTable.id,
+        title: contentTable.title,
+        kind: contentTable.kind,
+        slug: contentTable.slug,
+      })
+      .from(contentTable)
+      .where(
+        and(eq(contentTable.status, "published"), isNull(contentTable.deletedAt))
+      )
+      .orderBy(contentTable.title),
+  ]);
 
   function toPlacementRow(p: (typeof placementRows)[number]): PlacementRow {
     return {
@@ -64,20 +80,6 @@ export default async function CurationPage() {
   const deepDivePlacements = placementRows
     .filter((p) => p.surface === "home_deep_dives")
     .map(toPlacementRow);
-
-  // Published content available to add to surfaces.
-  const publishedContent = await db
-    .select({
-      id: contentTable.id,
-      title: contentTable.title,
-      kind: contentTable.kind,
-      slug: contentTable.slug,
-    })
-    .from(contentTable)
-    .where(
-      and(eq(contentTable.status, "published"), isNull(contentTable.deletedAt))
-    )
-    .orderBy(contentTable.title);
 
   const availableSignals: AvailableContent[] = publishedContent
     .filter((c) => c.kind === "signal")

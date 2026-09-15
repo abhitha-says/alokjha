@@ -4,6 +4,7 @@ import { content as contentTable } from "@/lib/db/schema/content";
 import { requireEditor } from "@/lib/admin-auth";
 import { and, eq, isNull, ilike, desc, sql } from "drizzle-orm";
 import type { Content } from "@/lib/db/schema/content";
+import DeleteContentButton from "./DeleteContentButton";
 
 // Auth + DB reads on every request — must not be prerendered.
 export const instant = false;
@@ -28,7 +29,7 @@ export default async function AdminContentList({
 }: {
   searchParams: Promise<Record<string, string>>;
 }) {
-  await requireEditor();
+  const actor = await requireEditor();
 
   const sp = await searchParams;
   const kind = (sp.kind as Content["kind"] | undefined) ?? undefined;
@@ -36,48 +37,37 @@ export default async function AdminContentList({
   const q = sp.q?.trim() ?? "";
   const page = Math.max(1, parseInt(sp.page ?? "1", 10));
 
-  const rows = DATABASE_CONFIGURED
-    ? await db
-        .select({
-          id: contentTable.id,
-          kind: contentTable.kind,
-          slug: contentTable.slug,
-          title: contentTable.title,
-          status: contentTable.status,
-          category: contentTable.category,
-          publishedAt: contentTable.publishedAt,
-          scheduledFor: contentTable.scheduledFor,
-          wordCount: contentTable.wordCount,
-          isFreeEdition: contentTable.isFreeEdition,
-          updatedAt: contentTable.updatedAt,
-        })
-        .from(contentTable)
-        .where(
-          and(
-            isNull(contentTable.deletedAt),
-            kind ? eq(contentTable.kind, kind) : undefined,
-            status ? eq(contentTable.status, status) : undefined,
-            q ? ilike(contentTable.title, `%${q}%`) : undefined
-          )
-        )
-        .orderBy(desc(contentTable.updatedAt))
-        .limit(PAGE_SIZE)
-        .offset((page - 1) * PAGE_SIZE)
-    : [];
+  const whereClause = and(
+    isNull(contentTable.deletedAt),
+    kind ? eq(contentTable.kind, kind) : undefined,
+    status ? eq(contentTable.status, status) : undefined,
+    q ? ilike(contentTable.title, `%${q}%`) : undefined
+  );
 
-  const totalRows = DATABASE_CONFIGURED
-    ? await db
-        .select({ count: sql<number>`count(*)` })
-        .from(contentTable)
-        .where(
-          and(
-            isNull(contentTable.deletedAt),
-            kind ? eq(contentTable.kind, kind) : undefined,
-            status ? eq(contentTable.status, status) : undefined,
-            q ? ilike(contentTable.title, `%${q}%`) : undefined
-          )
-        )
-    : [{ count: 0 }];
+  const [rows, totalRows] = DATABASE_CONFIGURED
+    ? await Promise.all([
+        db
+          .select({
+            id: contentTable.id,
+            kind: contentTable.kind,
+            slug: contentTable.slug,
+            title: contentTable.title,
+            status: contentTable.status,
+            category: contentTable.category,
+            publishedAt: contentTable.publishedAt,
+            scheduledFor: contentTable.scheduledFor,
+            wordCount: contentTable.wordCount,
+            isFreeEdition: contentTable.isFreeEdition,
+            updatedAt: contentTable.updatedAt,
+          })
+          .from(contentTable)
+          .where(whereClause)
+          .orderBy(desc(contentTable.updatedAt))
+          .limit(PAGE_SIZE)
+          .offset((page - 1) * PAGE_SIZE),
+        db.select({ count: sql<number>`count(*)` }).from(contentTable).where(whereClause),
+      ])
+    : [[], [{ count: 0 }]];
 
   const total = Number(totalRows[0]?.count ?? 0);
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -195,12 +185,17 @@ export default async function AdminContentList({
               <th className="px-3 py-2.5 text-left font-semibold text-muted text-[11px] uppercase tracking-[0.08em] hidden md:table-cell">
                 Updated
               </th>
+              {actor.role === "admin" && (
+                <th className="px-3 py-2.5 text-right font-semibold text-muted text-[11px] uppercase tracking-[0.08em]">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-muted text-[13px]">
+                <td colSpan={actor.role === "admin" ? 7 : 6} className="px-4 py-10 text-center text-muted text-[13px]">
                   No content found.
                   {!DATABASE_CONFIGURED && (
                     <span className="block mt-1 text-[11px]">
@@ -256,6 +251,11 @@ export default async function AdminContentList({
                       month: "short",
                     })}
                   </td>
+                  {actor.role === "admin" && (
+                    <td className="px-3 py-3 text-right">
+                      <DeleteContentButton id={row.id} title={row.title} />
+                    </td>
+                  )}
                 </tr>
               ))
             )}

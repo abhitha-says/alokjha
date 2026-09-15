@@ -1,16 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { featuredSignalSlugs } from "@/lib/content";
-import { getEssayBySlug } from "@/lib/markdown-content";
+import { getEssayBySlug } from "@/lib/source";
 import Reveal from "./Reveal";
 
-export default function FeaturedSignals() {
-  const featured = featuredSignalSlugs
-    .map(({ slug, image }) => {
-      const signal = getEssayBySlug(slug);
+export default async function FeaturedSignals() {
+  const signals = await Promise.all(
+    featuredSignalSlugs.map(async ({ slug, image }) => {
+      const signal = await getEssayBySlug(slug);
       return signal ? { ...signal, image, href: `/signals/${slug}` } : null;
     })
-    .filter((e): e is NonNullable<typeof e> => e !== null);
+  );
+  const featured = signals.filter((e): e is NonNullable<typeof e> => e !== null);
 
   return (
     <section className="mx-auto max-w-content px-6 py-14 sm:px-10 md:py-16 lg:px-14">

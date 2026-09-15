@@ -26,27 +26,30 @@ export default async function RevisionsPage({
     return <div className="p-8 text-muted text-[13px]">Database not configured.</div>;
   }
 
-  const [row] = await db
-    .select({ id: contentTable.id, title: contentTable.title, slug: contentTable.slug })
-    .from(contentTable)
-    .where(eq(contentTable.id, id))
-    .limit(1);
+  // Independent of each other — run together instead of round-tripping twice.
+  const [rowResult, revisions] = await Promise.all([
+    db
+      .select({ id: contentTable.id, title: contentTable.title, slug: contentTable.slug })
+      .from(contentTable)
+      .where(eq(contentTable.id, id))
+      .limit(1),
+    db
+      .select({
+        id: contentRevisions.id,
+        version: contentRevisions.version,
+        title: contentRevisions.title,
+        bodyMd: contentRevisions.bodyMd,
+        changeNote: contentRevisions.changeNote,
+        createdAt: contentRevisions.createdAt,
+        editorId: contentRevisions.editorId,
+      })
+      .from(contentRevisions)
+      .where(eq(contentRevisions.contentId, id))
+      .orderBy(desc(contentRevisions.version)),
+  ]);
+  const [row] = rowResult;
 
   if (!row) notFound();
-
-  const revisions = await db
-    .select({
-      id: contentRevisions.id,
-      version: contentRevisions.version,
-      title: contentRevisions.title,
-      bodyMd: contentRevisions.bodyMd,
-      changeNote: contentRevisions.changeNote,
-      createdAt: contentRevisions.createdAt,
-      editorId: contentRevisions.editorId,
-    })
-    .from(contentRevisions)
-    .where(eq(contentRevisions.contentId, id))
-    .orderBy(desc(contentRevisions.version));
 
   // Find the diff target revision if requested.
   const diffRevision = diffVersion

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { usePathname } from "next/navigation";
 import posthog from "posthog-js";
 import { PostHogProvider as Provider } from "posthog-js/react";
@@ -12,12 +12,13 @@ import {
 } from "@/lib/posthog-config";
 import PostHogPageView from "./PostHogPageView";
 
-export default function PostHogProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-
+/**
+ * Inner component that calls usePathname() — a dynamic hook.
+ * Wrapped in <Suspense> by the outer shell so the static prerender can
+ * complete without it. The admin-route guard lives here where pathname
+ * is available.
+ */
+function PostHogInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   // Do NOT initialise PostHog on admin routes.
@@ -83,5 +84,21 @@ export default function PostHogProvider({
       {ready && <PostHogPageView />}
       {children}
     </Provider>
+  );
+}
+
+/**
+ * Outer shell — no dynamic hooks, so the static prerender can complete.
+ * PostHogInner (which calls usePathname) streams in via Suspense.
+ */
+export default function PostHogProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense fallback={<>{children}</>}>
+      <PostHogInner>{children}</PostHogInner>
+    </Suspense>
   );
 }

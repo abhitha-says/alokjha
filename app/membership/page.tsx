@@ -10,7 +10,7 @@ import {
   FOUNDING_MEMBER_LIMIT,
   FREE_DEEP_DIVE_SLUGS,
 } from "@/lib/access";
-import { getAllDeepDives, getAllEssays } from "@/lib/markdown-content";
+import { getAllDeepDives, getAllEssays } from "@/lib/source";
 
 export const metadata = {
   title: "Membership — Human Signals",
@@ -186,9 +186,10 @@ const CANCELLATION = [
   "Individually purchased Deep Dives remain accessible.",
 ] as const;
 
-export default function MembershipPage() {
-  const signalCount = getAllEssays().length;
-  const diveCount = getAllDeepDives().length;
+export default async function MembershipPage() {
+  const [essays, deepDives] = await Promise.all([getAllEssays(), getAllDeepDives()]);
+  const signalCount = essays.length;
+  const diveCount = deepDives.length;
 
   return (
     <>

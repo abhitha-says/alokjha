@@ -59,36 +59,29 @@ export default async function PaymentDetailPage({
 
   if (!row) notFound();
 
-  // Entitlements from this order
-  const entitlementRows = await db
-    .select()
-    .from(entitlements)
-    .where(eq(entitlements.sourceOrderId, orderId));
+  // Independent of each other — run together instead of three round trips.
+  const [entitlementRows, invoiceRows, webhookRows] = await Promise.all([
+    // Entitlements from this order
+    db.select().from(entitlements).where(eq(entitlements.sourceOrderId, orderId)),
 
-  // Invoice
-  const invoiceRows = await db
-    .select()
-    .from(invoices)
-    .where(eq(invoices.orderId, orderId));
+    // Invoice
+    db.select().from(invoices).where(eq(invoices.orderId, orderId)),
 
-  // Webhook events that touched this Razorpay order ID
-  const webhookRows = await db
-    .select({
-      id: webhookEvents.id,
-      type: webhookEvents.type,
-      signatureValid: webhookEvents.signatureValid,
-      receivedAt: webhookEvents.receivedAt,
-      processedAt: webhookEvents.processedAt,
-      error: webhookEvents.error,
-    })
-    .from(webhookEvents)
-    .where(
-      and(
-        eq(webhookEvents.provider, "razorpay")
-      )
-    )
-    .orderBy(webhookEvents.receivedAt)
-    .limit(50);
+    // Webhook events that touched this Razorpay order ID
+    db
+      .select({
+        id: webhookEvents.id,
+        type: webhookEvents.type,
+        signatureValid: webhookEvents.signatureValid,
+        receivedAt: webhookEvents.receivedAt,
+        processedAt: webhookEvents.processedAt,
+        error: webhookEvents.error,
+      })
+      .from(webhookEvents)
+      .where(and(eq(webhookEvents.provider, "razorpay")))
+      .orderBy(webhookEvents.receivedAt)
+      .limit(50),
+  ]);
 
   // Filter webhooks that mention this order's Razorpay ID
   const relevantWebhooks = webhookRows.filter((w) => {
