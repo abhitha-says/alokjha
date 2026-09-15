@@ -6,21 +6,40 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "node --env-file=.env.local ./node_modules/.bin/drizzle-kit migrate",
+    "db:studio": "node --env-file=.env.local ./node_modules/.bin/drizzle-kit studio",
+    "db:seed": "node --env-file=.env.local --experimental-strip-types scripts/seed-plans.ts",
+    "db:import": "node --env-file=.env.local --experimental-strip-types scripts/import-content.ts",
+    "db:import:write": "node --env-file=.env.local --experimental-strip-types scripts/import-content.ts -- --write"
   },
   "dependencies": {
+    "@auth/drizzle-adapter": "^1.11.3",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@node-rs/argon2": "^2.2.1",
+    "drizzle-orm": "^0.45.2",
     "framer-motion": "^11.11.17",
     "lucide-react": "^0.454.0",
     "markdown-to-jsx": "^9.10.2",
     "next": "^16.3.5",
+    "next-auth": "^5.0.0-beta.32",
+    "postgres": "^3.4.9",
+    "posthog-js": "^1.433.3",
+    "posthog-node": "^5.52.2",
+    "razorpay": "^2.9.8",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
+    "drizzle-kit": "^0.31.10",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.5.4"

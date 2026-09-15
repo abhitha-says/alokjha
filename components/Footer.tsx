@@ -1,7 +1,11 @@
 import Link from "next/link";
+import { cacheLife } from "next/cache";
 import { nav } from "@/lib/content";
 
-export default function Footer() {
+export default async function Footer() {
+  "use cache";
+  cacheLife("days");
+
   return (
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-content flex-col gap-6 px-6 py-10 sm:px-10 md:flex-row md:items-center md:justify-between lg:px-14">
@@ -20,6 +24,12 @@ export default function Footer() {
               {item.label}
             </Link>
           ))}
+          <Link href="/subscribe" className="hover:text-ink">
+            Subscribe
+          </Link>
+          <Link href="/account" className="hover:text-ink">
+            Account
+          </Link>
           <Link href="/privacy" className="hover:text-ink">
             Privacy
           </Link>

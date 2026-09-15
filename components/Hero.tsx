@@ -51,21 +51,21 @@ export default function Hero() {
             more than data.
           </h1>
           <p className="reveal mt-4 max-w-[440px] text-[14.5px] leading-relaxed text-ink/75 sm:text-[15px] [animation-delay:200ms]">
-            Essays, research and practical ideas on how we think, choose
-            and behave — in work, in life and in a rapidly changing world.
+            A free Signal every week on how we think, choose and behave.
+            Deep Dives when one question deserves the whole answer.
           </p>
           <div className="reveal mt-6 flex flex-wrap items-center gap-3 [animation-delay:300ms]">
             <Link
-              href="/articles"
+              href="/signals"
               className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-[13.5px] font-medium text-paper transition-transform hover:scale-[1.03] active:scale-[0.98]"
             >
-              Explore Essays <span aria-hidden>→</span>
+              Read the Signals <span aria-hidden>→</span>
             </Link>
             <Link
-              href="/reports"
+              href="/deep-dives"
               className="inline-flex items-center rounded-full border border-ink/25 bg-white/40 px-6 py-3 text-[13.5px] font-medium text-ink backdrop-blur-sm transition-colors hover:bg-white/70"
             >
-              Get the Free Reports
+              Explore Deep Dives
             </Link>
           </div>
 

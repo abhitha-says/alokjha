@@ -13,9 +13,9 @@ export const metadata = {
 
 const stats = [
   { value: "30+", label: "Years of experience" },
-  { value: "50", label: "Essays published" },
+  { value: "50", label: "Signals published" },
+  { value: "55", label: "Deep Dives" },
   { value: "5", label: "Sections" },
-  { value: "5", label: "Deep-dive reports" },
 ] as const;
 
 export default function AboutPage() {
@@ -112,10 +112,13 @@ export default function AboutPage() {
               <p className="text-[15.5px] leading-[1.8] text-ink/85">
                 It runs on evidence — behavioural science, psychology,
                 decision research — and it&rsquo;s written for people with
-                no intention of reading a journal. Fifty essays sit across
-                the five sections; five reports go deeper, one question
-                each. A new essay arrives every week. All of it is free to
-                read.
+                no intention of reading a journal. A Signal arrives every
+                week, free, across the five sections. Deep Dives go
+                further: one question each, taken all the way through.
+              </p>
+              <p className="text-[15.5px] leading-[1.8] text-ink/85">
+                Signals are free to discover. Deep Dives can be bought
+                individually. Membership unlocks the complete body of work.
               </p>
               <p className="text-[15.5px] leading-[1.8] text-ink/85">
                 What it won&rsquo;t do is tell you what to decide.
@@ -128,16 +131,16 @@ export default function AboutPage() {
 
             <Reveal delay={0.14} className="mt-9 flex flex-wrap items-center gap-3">
               <Link
-                href="/articles"
+                href="/signals"
                 className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-[13.5px] font-medium text-paper transition-transform hover:scale-[1.03] active:scale-[0.98]"
               >
-                Read the essays <span aria-hidden>→</span>
+                Read the Signals <span aria-hidden>→</span>
               </Link>
               <Link
-                href="/reports"
+                href="/deep-dives"
                 className="inline-flex items-center rounded-full border border-ink/25 px-6 py-3 text-[13.5px] font-medium text-ink transition-colors hover:bg-cream"
               >
-                Get the free reports
+                Browse the Deep Dives
               </Link>
             </Reveal>
           </div>

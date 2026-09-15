@@ -376,3 +376,137 @@ export function getInsightsBySeries(series: Category): Insight[] {
 export function getInsightBySlug(slug: string): Insight | undefined {
   return parseInsights().find((i) => i.slug === slug);
 }
+
+/* ------------------------------------------------------------------ *
+ * Deep Dives
+ *
+ * One Deep Dive per HSI edition. The Founding Five also exist in
+ * Human_Signals_Reports_Volume_1.md as a more finished edition — proper
+ * section headings, a standfirst and a sources list — so that text wins
+ * for those five and the Insights library supplies the other fifty.
+ * ------------------------------------------------------------------ */
+
+export interface DeepDive {
+  number: string;
+  code: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  standfirst: string;
+  series: Category;
+  teaser: string;
+  body: string;
+  sources: string;
+  readingTime: string;
+  /** One of the Founding Five, published as a complete free edition. */
+  isFounding: boolean;
+}
+
+let deepDivesCache: DeepDive[] | null = null;
+
+function buildDeepDives(): DeepDive[] {
+  if (deepDivesCache) return deepDivesCache;
+
+  const reportsBySlug = new Map(parseReports().map((r) => [r.slug, r]));
+
+  deepDivesCache = parseInsights()
+    .map((insight) => {
+      const report = reportsBySlug.get(insight.slug);
+      const body = report?.body ?? insight.body;
+
+      return {
+        number: insight.number,
+        code: insight.code,
+        slug: insight.slug,
+        title: insight.title,
+        subtitle: insight.subtitle,
+        standfirst: report?.standfirst ?? "",
+        series: insight.series,
+        teaser: insight.teaser,
+        body,
+        sources: report?.sources || insight.sources,
+        readingTime: readingTime(body, 250),
+        isFounding: insight.isFounding,
+      };
+    })
+    .sort((a, b) => a.number.localeCompare(b.number));
+
+  return deepDivesCache;
+}
+
+export function getAllDeepDives(): DeepDive[] {
+  return buildDeepDives();
+}
+
+export function getDeepDiveBySlug(slug: string): DeepDive | undefined {
+  return buildDeepDives().find((d) => d.slug === slug);
+}
+
+export function getDeepDivesBySeries(series: Category): DeepDive[] {
+  return buildDeepDives().filter((d) => d.series === series);
+}
+
+export interface DeepDivePreview {
+  /** The opening observation plus roughly the first fifth of the piece. */
+  preview: string;
+  /** Section headings, shown as "what this Deep Dive works through". */
+  themes: string[];
+  /** Whole-piece word count, so the preview can be described honestly. */
+  totalWords: number;
+  previewWords: number;
+}
+
+function wordCount(text: string): number {
+  return text.split(/\s+/).filter(Boolean).length;
+}
+
+/**
+ * Cuts a Deep Dive down to the share of it a locked reader may see.
+ *
+ * Called on the server; the discarded remainder is never returned to the
+ * caller, so it cannot reach the page source. The cut always lands on a
+ * paragraph boundary and never leaves a dangling heading at the end.
+ */
+export function buildDeepDivePreview(
+  body: string,
+  share: number,
+  maxShare: number
+): DeepDivePreview {
+  const blocks = body.split(/\n{2,}/).filter((b) => b.trim().length > 0);
+  const totalWords = wordCount(body);
+  const budget = Math.round(totalWords * share);
+  const ceiling = Math.round(totalWords * maxShare);
+
+  const kept: string[] = [];
+  let used = 0;
+
+  for (const block of blocks) {
+    const words = wordCount(block);
+    // Always keep the first two blocks so the opening observation survives
+    // even when a piece opens with one very long paragraph.
+    if (kept.length >= 2) {
+      if (used >= budget) break;
+      // Never let the final paragraph push the extract past the ceiling.
+      if (used + words > ceiling) break;
+    }
+    kept.push(block);
+    used += words;
+  }
+
+  while (kept.length > 1 && /^#{1,6}\s/.test(kept[kept.length - 1].trim())) {
+    const dropped = kept.pop()!;
+    used -= wordCount(dropped);
+  }
+
+  const themes = blocks
+    .filter((b) => /^##\s+\S/.test(b.trim()))
+    .map((b) => b.trim().replace(/^##\s+/, "").trim())
+    .filter((t, i, arr) => arr.indexOf(t) === i);
+
+  return {
+    preview: kept.join("\n\n"),
+    themes,
+    totalWords,
+    previewWords: used,
+  };
+}

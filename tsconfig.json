@@ -15,6 +15,10 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    // scripts/ are run directly by Node with --experimental-strip-types, which
+    // requires explicit .ts specifiers on relative imports. Safe here because
+    // noEmit is on — nothing is compiled, only type-checked.
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "incremental": true,
     "plugins": [

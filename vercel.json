@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/admin/publish-scheduled",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/admin/sweep-grace",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}

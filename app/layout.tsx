@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Lora, Inter, Caveat } from "next/font/google";
+import PostHogProvider from "@/components/analytics/PostHogProvider";
 import "./globals.css";
 
 const serif = Lora({
@@ -40,7 +41,9 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${serif.variable} ${sans.variable} ${hand.variable}`}
     >
-      <body className="bg-paper text-ink font-sans antialiased">{children}</body>
+      <body className="bg-paper text-ink font-sans antialiased">
+        <PostHogProvider>{children}</PostHogProvider>
+      </body>
     </html>
   );
 }

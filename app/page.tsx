@@ -1,8 +1,8 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import SignalCategories from "@/components/SignalCategories";
-import FeaturedEssays from "@/components/FeaturedEssays";
-import Reports from "@/components/Reports";
+import FeaturedSignals from "@/components/FeaturedSignals";
+import DeepDivesSection from "@/components/DeepDivesSection";
 import Newsletter from "@/components/Newsletter";
 import QuoteSection from "@/components/QuoteSection";
 import Footer from "@/components/Footer";
@@ -14,8 +14,8 @@ export default function Home() {
       <main>
         <Hero />
         <SignalCategories />
-        <FeaturedEssays />
-        <Reports />
+        <FeaturedSignals />
+        <DeepDivesSection />
         <Newsletter />
         <QuoteSection />
       </main>
